@@ -1,5 +1,9 @@
 package main
 
+// git add .
+// git commit -m "<здесь имя вашего коммита, например first commit>"
+// git push --set-upstream origin <имя ветки которую вы дали выше>
+
 import (
 	"fmt"
 	"math"
@@ -16,11 +20,11 @@ const (
 
 // Training общая структура для всех тренировок
 type Training struct {
-	...        	// тип тренировки
-	...         // количество повторов(шаги, гребки при плавании)
-	...       	// длина одного шага или гребка в м
-	... 		// продолжительность тренировки
-	...       	// вес пользователя в кг
+	TrainingType string        	// тип тренировки
+	Action int         // количество повторов(шаги, гребки при плавании)
+	LenStep float64        	// длина одного шага или гребка в м
+	Duration int  		// продолжительность тренировки
+	Weight float64       	// вес пользователя в кг
 }
 
 // distance возвращает дистанцию, которую преодолел пользователь.
@@ -28,36 +32,42 @@ type Training struct {
 // количество_повторов * длина_шага / м_в_км
 func (t Training) distance() float64 {
 	// вставьте ваш код ниже
-	...
+	return t.Action * LenStep / MInKm
 }
 
 // meanSpeed возвращает среднюю скорость бега или ходьбы.
 func (t Training) meanSpeed() float64 {
 	// вставьте ваш код ниже
-	...	
+	return t.distance()	* t.Duration * MinInHours
 }
 
 // Calories возвращает количество потраченных килокалорий на тренировке.
 // Пока возвращаем 0, так как этот метод будет переопределяться для каждого типа тренировки.
 func (t Training) Calories() float64 {
 	// вставьте ваш код ниже
-	...
+	return 0.0
 }
 
 // InfoMessage содержит информацию о проведенной тренировке.
 type InfoMessage struct {
 	// добавьте необходимые поля в структуру
-	...     // тип тренировки
-	... 	// длительность тренировки
-	...     // расстояние, которое преодолел пользователь
-	...     // средняя скорость, с которой двигался пользователь
-	...     // количество потраченных килокалорий на тренировке
+	TrainingType string     // тип тренировки
+	Duration time.Duration 	// длительность тренировки
+	Distance float64     // расстояние, которое преодолел пользователь
+	Speed float64     // средняя скорость, с которой двигался пользователь
+	Calories float64     // количество потраченных килокалорий на тренировке
 }
 
 // TrainingInfo возвращает труктуру InfoMessage, в которой хранится вся информация о проведенной тренировке.
 func (t Training) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	...
+	return InfoMessage{
+		TrainingType: t.TrainingType,
+		Duration: t.Training.Duration,
+		Distance: t.distance(),
+		Speed: t.meanSpeed(),
+		Calories: t.Calories(),
+	}
 }
 
 // String возвращает строку с информацией о проведенной тренировке.
@@ -74,7 +84,8 @@ func (i InfoMessage) String() string {
 // CaloriesCalculator интерфейс для структур: Running, Walking и Swimming.
 type CaloriesCalculator interface {
 	// добавьте необходимые методы в интерфейс
-	...
+	Calories() float64
+	TrainingInfo() InfoMessage
 }
 
 // Константы для расчета потраченных килокалорий при беге.
@@ -86,7 +97,7 @@ const (
 // Running структура, описывающая тренировку Бег.
 type Running struct {
 	// добавьте необходимые поля в структуру
-	...
+	Training
 }
 
 // Calories возввращает количество потраченных килокалория при беге.
@@ -95,14 +106,21 @@ type Running struct {
 // Это переопределенный метод Calories() из Training.
 func (r Running) Calories() float64 {
 	// вставьте ваш код ниже
-	...
+	totalCalories := 0.0
+
+	r.meanSpeed()
+
+	totalCalories = ((runningCaloriesMeanSpeedMultiplier * r.meanSpeed() *
+		runningCaloriesMeanSpeedShift) * r.weight / MInKm * float64(r.Duration) * MinInHours)
+
+	return totalCalories
 }
 
 // TrainingInfo возвращает структуру InfoMessage с информацией о проведенной тренировке.
 // Это переопределенный метод TrainingInfo() из Training.
 func (r Running) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	...
+	r.Training.TrainingInfo()
 }
 
 // Константы для расчета потраченных килокалорий при ходьбе.
