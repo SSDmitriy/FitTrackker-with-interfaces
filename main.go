@@ -172,7 +172,7 @@ func (s Swimming) meanSpeed() float64 {
 		return 0
 	}
 
-	swimDistanceInKm := float64(s.LengthPool * s.CountPool / MInKm)
+	swimDistanceInKm := float64(s.LengthPool*s.CountPool) / MInKm
 
 	return swimDistanceInKm / s.Duration.Hours()
 }
@@ -192,8 +192,13 @@ func (s Swimming) Calories() float64 {
 // TrainingInfo returns info about swimming training.
 // Это переопределенный метод TrainingInfo() из Training.
 func (s Swimming) TrainingInfo() InfoMessage {
-	infoMessage := s.Training.TrainingInfo()
-	infoMessage.Calories = s.Calories()
+	infoMessage := InfoMessage{
+		s.TrainingType,
+		s.Duration,
+		float64(s.LengthPool*s.CountPool) / MInKm,
+		s.meanSpeed(),
+		s.Calories(),
+	}
 
 	return infoMessage
 }
@@ -251,5 +256,4 @@ func main() {
 	}
 
 	fmt.Println(ReadData(running))
-
 }
